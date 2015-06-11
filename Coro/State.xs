@@ -1013,6 +1013,7 @@ static int (*orig_sigelem_clr) (pTHX_ SV *sv, MAGIC *mg);
                                  (const char*)(mg)->mg_ptr)
 #endif
 
+#if !PERL_VERSION_ATLEAST (5,16,0)
 /*
  * This overrides the default magic get method of %SIG elements.
  * The original one doesn't provide for reading back of PL_diehook/PL_warnhook
@@ -1097,6 +1098,7 @@ coro_sigelem_set (pTHX_ SV *sv, MAGIC *mg)
 
   return orig_sigelem_set ? orig_sigelem_set (aTHX_ sv, mg) : 0;
 }
+#endif /* !PERL_VERSION_ATLEAST (5,16,0) */
 
 static void
 prepare_nop (pTHX_ struct coro_transfer_args *ta)
@@ -3479,10 +3481,11 @@ BOOT:
 
         irsgv    = gv_fetchpv ("/"     , GV_ADD|GV_NOTQUAL, SVt_PV);
         stdoutgv = gv_fetchpv ("STDOUT", GV_ADD|GV_NOTQUAL, SVt_PVIO);
-
+#if !PERL_VERSION_ATLEAST(5,16,0)
         orig_sigelem_get = PL_vtbl_sigelem.svt_get;   PL_vtbl_sigelem.svt_get   = coro_sigelem_get;
         orig_sigelem_set = PL_vtbl_sigelem.svt_set;   PL_vtbl_sigelem.svt_set   = coro_sigelem_set;
         orig_sigelem_clr = PL_vtbl_sigelem.svt_clear; PL_vtbl_sigelem.svt_clear = coro_sigelem_clr;
+#endif
 
         hv_sig      = coro_get_hv (aTHX_ "SIG", TRUE);
         rv_diehook  = newRV_inc ((SV *)gv_fetchpv ("Coro::State::diehook" , 0, SVt_PVCV));

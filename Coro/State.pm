@@ -102,6 +102,7 @@ BEGIN {
    XSLoader::load __PACKAGE__, $VERSION;
 
    # major complication:
+   # At least before 5.16
    # perl stores a PVMG with sigelem magic in warnhook, and retrieves the
    # value from the hash, even while PL_warnhook is zero.
    # Coro can't do that because the value in the hash might be stale.
@@ -109,8 +110,10 @@ BEGIN {
    # need to manually copy the existing handlers to remove their magic.
    # I chose to use "delete", to hopefuly get rid of the remnants,
    # but (my $v = $SIG{...}) would also work.
-   $SIG{__DIE__}  = (delete $SIG{__DIE__} ) || \&diehook;
-   $SIG{__WARN__} = (delete $SIG{__WARN__}) || \&warnhook;
+   if( $] < 5.016000 ) {
+       $SIG{__DIE__}  = (delete $SIG{__DIE__} ) || \&diehook;
+       $SIG{__WARN__} = (delete $SIG{__WARN__}) || \&warnhook;
+   };
 }
 
 use Exporter;
