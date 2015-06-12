@@ -26,6 +26,11 @@
        && (PERL_VERSION > (b)					\
            || (PERL_VERSION == (b) && PERL_SUBVERSION >= (c)))))
 
+#if PERL_VERSION_ATLEAST(5,22,0) && !PERL_VERSION_ATLEAST(5,22,1)
+# undef PadlistNAMES
+# define PadlistNAMES(pl)      *((PADNAMELIST **)PadlistARRAY(pl))
+#endif
+
 #ifndef PERL_MAGIC_ext
 # define PERL_MAGIC_ext '~'
 #endif
